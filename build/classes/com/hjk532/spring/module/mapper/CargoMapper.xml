@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"    
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hjk532.spring.module.mapper.CargoMapper">
+	<!-- Cargo的增删操作频繁，所以不开启缓存 -->
+	<!-- <cache flushInterval="10800000"></cache> -->
+
+	<!-- 动态sql -->
+	<sql id="cargo_set">
+		<if test="cargo!=null">
+			<if test="cargo.orderId!=null and cargo.orderId!='' ">
+				order_id=#{orderId}
+			</if>
+			<if test="cargo.cargoName!=null and cargo.cargoName!='' ">
+				,cargo_name=#{cargoName}
+			</if>
+			<if test="cargo.cargoAmount!=null and cargo.cargoAmount!='' ">
+				,cargo_amount=#{cargoAmount}
+			</if>
+			<if
+				test="cargo.oNum!=null and cargo.oNum!='' ">
+				,o_num=#{oNum}
+			</if>
+			<if test="cargo.tNum!=null and cargo.tNum!='' ">
+				,t_num=#{tNum}
+			</if>
+			<if test="cargo.productDate!=null">
+				,product_date=#{productDate}
+			</if>
+		</if>
+	</sql>
+	<sql id="cargo_where">
+		<if test="param1!=null">
+			<if test="param1.orderId!=null and param1.orderId!='' ">
+				cargo.order_id like concat('%',#{param1.orderId},'%')
+			</if>
+			<if test="param1.cargoName!=null and param1.cargoName!='' ">
+				and cargo.cargo_name like concat('%',#{param1.cargoName},'%')
+			</if>
+			<if test="param1.oNum!=null and param1.oNum!='' ">
+				and cargo.o_num like concat('%',#{param1.oNum},'%')
+			</if>
+			<if test="param1.tNum!=null and param1.tNum!='' ">
+				and cargo.t_num like concat('%',#{param1.tNum},'%')
+			</if>
+		</if>
+	</sql>
+
+	<insert id="addCargo">
+		insert into cargo(order_id,cargo_name,cargo_amount,o_num,t_num,product_date) values (#{orderId},#{cargoName},#{cargoAmount},#{oNum},#{tNum},#{productDate})
+	</insert>
+	<insert id="addCargos">
+		insert into cargo (order_id,cargo_name,cargo_amount,o_num,t_num,product_date) values
+		<foreach collection="cargos" item="orderId" separator=","
+			open="(" close=")">
+			#{orderId},#{cargoName},#{cargoAmount},#{oNum},#{tNum},#{productDate}
+		</foreach>
+	</insert>
+	<delete id="deleteCargo">
+		delete from cargo where order_id in(
+		<foreach collection="oid" item="orderId" separator=","
+			open="(" close=")">
+			#{orderId}
+		</foreach>
+		)
+	</delete>
+	<update id="updateCargo">
+		update cargo
+		<set>
+			<include refid="cargo_set"></include>
+		</set>
+		where order_id=#{orderId}
+	</update>
+	<select id="findByNum"
+		resultType="com.hjk532.spring.module.CargoVo">
+		select order_id,cargo_name,cargo_amount,o_num,t_num,product_date,last_optime from cargo where order_id=#{param1}
+	</select>
+	<select id="findCargos"
+		resultType="com.hjk532.spring.module.CargoVo">
+		select order_id,cargo_name,cargo_amount,o_num,t_num,product_date,last_optime from cargo
+		<where>
+			<include refid="cargo_where"></include>
+		</where>
+		limit #{param2},#{param3}
+	</select>
+	<select id="findCargo"
+		resultType="com.hjk532.spring.module.CargoVo">
+		select order_id,cargo_name,cargo_amount,o_num,t_num,product_date,last_optime from cargo limit #{param1},#{param2}
+	</select>
+</mapper>

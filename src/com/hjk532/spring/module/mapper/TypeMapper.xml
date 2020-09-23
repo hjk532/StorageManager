@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"    
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hjk532.spring.module.mapper.TypeMapper">
+	<cache type="org.mybatis.caches.redis.RedisCache"></cache>
+	
+	<!-- 动态sql -->
+	<sql id="type_set">
+		<if test="type!=null">
+			<if test="type.typeNum!=null and type.typeNum!='' ">
+				type_num=#{typeNum}
+			</if>
+			<if test="type.typeName!=null and type.typeName!='' ">
+				,type_name=#{typeName}
+			</if>
+			<if test="type.typeDescrib!=null and type.typeDescrib!='' ">
+				,type_describ=#{typeDescrib}
+			</if>
+			
+		</if>
+	</sql>
+	<sql id="type_where">
+		<if test="type!=null">
+			<if test="type.typeNum!=null and type.typeNum!='' ">
+				type.type_num like #{typeNum}
+			</if>
+			<if test="type.typeName!=null and type.typeName!='' ">
+				and type.type_name like #{typeName}
+			</if>
+			<if test="type.typeDescrib!=null and type.typeDescrib!='' ">
+				and type.type_describ like #{typeDescrib}
+			</if>
+		</if>
+	</sql>
+	<insert id="addtype">
+		insert into type.* values(#{typeNum},#{typeName},#{typeDescrib})
+	</insert>
+	<delete id="deletetype">
+		delete from type where type_num = #{typeNum}
+	</delete>
+	<update id="updatetype">
+		update type 
+		<set>
+			<include refid="type_set"></include>
+		</set>
+		where type_num=#{typeNum}
+	</update>
+	<select id="findByNum" resultType="com.hjk532.spring.module.TypeVo" useCache="true">
+		select * from type where type_num=#{typeNum}
+	</select>
+	<select id="findByName" resultType="com.hjk532.spring.module.TypeVo" useCache="true">
+		select * from type where type_name=#{typeNum}
+	</select>
+	<select id="findType" resultType="com.hjk532.spring.module.TypeVo" useCache="true">
+		select * from type limit #{param1},#{param2}
+	</select>
+	<select id="findAllType" resultType="com.hjk532.spring.module.TypeVo" useCache="true">
+		select * from type
+	</select>
+</mapper>

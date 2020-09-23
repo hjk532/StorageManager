@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"    
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hjk532.spring.module.mapper.OperatorMapper">
+	<cache type="org.mybatis.caches.redis.RedisCache"></cache>
+	
+	<!-- 动态sql -->
+	<sql id="operator_set">
+		<if test="operator!=null">
+			<if test="operator.optNum!=null and operator.optNum!='' ">
+				opt_num=#{optNum}
+			</if>
+			<if test="operator.optName!=null and operator.optName!='' ">
+				,opt_name=#{optName}
+			</if>
+			<if test="operator.optGender!=null and operator.optGender!='' ">
+				,opt_gender=#{optGender}
+			</if>
+			<if test="operator.optAge!=null and operator.optAge!='' ">
+				,opt_age=#{optAge}
+			</if>
+			<if test="operator.optSalary!=null and operator.optSalary!='' ">
+				,opt_salary=#{optSalary}
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="operator_where">
+		<if test="operator!=null">
+			<if test="operator.optNum!=null and operator.optNum!='' ">
+				operator.opt_num like #{optNum}
+			</if>
+			<if test="operator.operatorName!=null and operator.operatorName!='' ">
+				and operator.name like #{optName}
+			</if>
+			<if test="operator.optGender!=null and operator.optGender!='' ">
+				and operator.opt_gender like #{optGender}
+			</if>
+			<if test="operator.optAge!=null and operator.optAge!='' ">
+				and operator.age like #{optAge} 
+			</if>
+			<if test="operator.optSalary!=null and operator.optSalary!='' ">
+				and operator.opt_salary like #{optSalary}
+			</if>
+		</if>
+	</sql>
+
+	<insert id="addoperator">
+		insert into operator.* values(#{optNum},#{optName},#{optGender},#{optAge},#{optSalary})
+	</insert>
+	<delete id="deleteoperator">
+		delete from operator where opt_num = #{optNum}
+	</delete>
+	<update id="updateOperator">
+		update operator 
+		<set>
+			<include refid="operator_set"></include>
+		</set>
+		where opt_num=#{optNum}
+	</update>
+	<select id="findByNum" resultType="com.hjk532.spring.module.OperatorVo" useCache="true">
+		select * from operator where opt_num=#{orderId}
+	</select>
+	<select id="findByName" resultType="com.hjk532.spring.module.OperatorVo" useCache="true">
+		select * from operator where opt_name=#{opt_name}
+	</select>
+	<select id="findoperator" resultType="com.hjk532.spring.module.OperatorVo" useCache="true">
+		select * from operator limit #{param1},#{param2}
+	</select>
+</mapper>

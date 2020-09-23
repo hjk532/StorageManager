@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"    
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hjk532.spring.module.mapper.LogMapper">
+	<!-- log随Cargo的增删而产生，故不开启缓存 -->
+	<!-- <cache flushInterval="10800000"></cache> -->
+
+	<!-- 动态sql -->
+	<sql id="logId_set">
+		<if test="log!=null">
+			<if test="log.logId!=null and log.logId!='' ">
+				log_id=#{logId}
+			</if>
+			<if test="log.generateTime!=null and log.generateTime!='' ">
+				,generate_time=#{generateTime}
+			</if>
+			<if test="log.opId!=null and log.opId!='' ">
+				,op_id=#{opId}
+			</if>
+			<if test="log.cargoList!=null and log.cargoList!='' ">
+				,o_num=#{onum}
+			</if>
+		</if>
+	</sql>
+	<sql id="log_where">
+		<if test="log!=null">
+			<if test="log.logId!=null and log.logId!='' ">
+				log.log_id like #{log.logId}
+			</if>
+			<if test="log.generateTime!=null and log.generateTime!='' ">
+				and log.generate_time like #{log.generateTime}
+			</if>
+			<if test="log.opId!=null and log.opId!='' ">
+				and op_id like #{log.opId}
+			</if>
+			<if test="log.cargoList!=null and log.cargoList!='' ">
+				and cargo_list like #{log.cargoList}
+			</if>
+		</if>
+	</sql>
+
+	<insert id="addLog">
+		insert into
+		<choose>
+			<when test="logStatus==1">
+				inlog (log_id,op_id,cargo_list,log_status)
+			</when>
+			<when test="logStatus==2">
+				outlog (log_id,op_id,cargo_list,log_status)
+			</when>
+			<when test="logStatus==3">
+				changelog (log_id,op_id,cargo_list,log_status)
+			</when>
+		</choose>
+
+		values
+		(#{logId},#{opId},#{cargoList},
+		<choose>
+			<when test="logStatus==1">
+				1
+			</when>
+			<when test="logStatus==2">
+				2
+			</when>
+			<when test="logStatus==3">
+				3
+			</when>
+		</choose>
+		)
+	</insert>
+	<insert id="addLogs">
+		insert into
+		<choose>
+			<when test="logStatus==1">
+				inlog (log_id,op_id,cargo_list,log_status)
+			</when>
+			<when test="logStatus==2">
+				outlog (log_id,op_id,cargo_list,log_status)
+			</when>
+			<when test="logStatus==3">
+				changelog (log_id,op_id,cargo_list,log_status)
+			</when>
+		</choose>
+		values
+		<foreach collection="cargos" item="orderId" separator=","
+			open="(" close=")">
+			#{logId},#{opId},#{cargoList},
+			<choose>
+			<when test="logStatus==1">
+				1
+			</when>
+			<when test="logStatus==2">
+				2
+			</when>
+			<when test="logStatus==3">
+				3
+			</when>
+		</choose>
+		</foreach>
+	</insert>
+	<delete id="deleteLog">
+		delete from log where log_id = #{logId}
+	</delete>
+	<update id="updateLog">
+		update log
+		<set>
+			<include refid="logId_set"></include>
+		</set>
+		where log_id=#{logId}
+	</update>
+	<select id="findByLogId"
+		resultType="com.hjk532.spring.module.Log">
+		select * from inlog where log_id=#{logId}
+	</select>
+	<select id="findByDate"
+		resultType="com.hjk532.spring.module.Log">
+		select * from inlog where generate_time=#{generateTime}
+	</select>
+	<select id="findByOpid"
+		resultType="com.hjk532.spring.module.Log">
+		select * from inlog where generate_time=#{opId}
+	</select>
+	<select id="findInLog" resultType="com.hjk532.spring.module.Log">
+		select * from inlog limit
+		#{param1},#{param2}
+	</select>
+	<select id="findOutLog"
+		resultType="com.hjk532.spring.module.Log">
+		select * from outlog limit
+		#{param1},#{param2}
+	</select>
+	<select id="findChangeLog"
+		resultType="com.hjk532.spring.module.Log">
+		select * from changelog limit
+		#{param1},#{param2}
+	</select>
+	<select id="findInLogWeek"
+		resultType="com.hjk532.spring.module.Log">
+		select * from inlog
+		where generate_time between current_date()-7 and sysdate()
+		limit
+		#{param1},#{param2}
+	</select>
+	<select id="findOutLogWeek"
+		resultType="com.hjk532.spring.module.Log">
+		select * from outlog
+		where generate_time between current_date()-7 and sysdate()
+		limit #{param1},#{param2}
+	</select>
+	<select id="findChangeLogWeek"
+		resultType="com.hjk532.spring.module.Log">
+		select * from changelog
+		where generate_time between current_date()-7 and sysdate()
+		limit
+		#{param1},#{param2}
+	</select>
+	<select id="findInLogOpt"
+		resultType="com.hjk532.spring.module.Log">
+		select * from inlog where op_id=#{param3} limit
+		#{param1},#{param2}
+	</select>
+	<select id="findOutLogOpt"
+		resultType="com.hjk532.spring.module.Log">
+		select * from outlog where op_id=#{param3} limit
+		#{param1},#{param2}
+	</select>
+	<select id="findChangeLogOpt"
+		resultType="com.hjk532.spring.module.Log">
+		select * from changelog where op_id=#{param3} limit
+		#{param1},#{param2}
+	</select>
+	<select id="findInLogWeekOpt"
+		resultType="com.hjk532.spring.module.Log">
+		select * from inlog
+		where op_id=#{param3} and generate_time between current_date()-7 and
+		sysdate()
+		limit #{param1},#{param2}
+	</select>
+	<select id="findOutLogWeekOpt"
+		resultType="com.hjk532.spring.module.Log">
+		select * from outlog
+		where op_id=#{param3} and generate_time between current_date()-7 and
+		sysdate()
+		limit #{param1},#{param2}
+	</select>
+	<select id="findChangeLogWeekOpt"
+		resultType="com.hjk532.spring.module.Log">
+		select * from changelog
+		where op_id=#{param3} and generate_time between current_date()-7 and
+		sysdate()
+		limit #{param1},#{param2}
+	</select>
+
+</mapper>

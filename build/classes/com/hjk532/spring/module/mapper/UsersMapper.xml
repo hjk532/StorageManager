@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"    
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hjk532.spring.module.mapper.UsersMapper">
+	<cache type="org.mybatis.caches.redis.RedisCache"></cache>
+	<!-- 动态sql -->
+	<sql id="Users_set">
+		<if test="users!=null">
+			<if test="users.userId!=null and users.userId!='' ">
+				user_id=#{userId}
+			</if>
+			<if test="users.opId!=null and users.opId!='' ">
+				,op_id=#{opId}
+			</if>
+			<if test="users.userAccount!=null and users.userAccount!='' ">
+				,user_account=#{userAccount}
+			</if>
+			<if test="users.userPassword!=null and users.userPassword!='' ">
+				,user_password=#{userPassword}
+			</if>
+			<if test="users.userAuthority!=null and users.userAuthority!='' ">
+				user_authority=#{userAuthority},
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="Users_where">
+		<if test="users!=null">
+			<if test="users.userId!=null and users.userId!='' ">
+				users.user_id like #{userId}
+			</if>
+			<if test="users.UsersName!=null and users.UsersName!='' ">
+				and users.name like #{opId}
+			</if>
+			<if test="users.userPassword!=null and users.userPassword!='' ">
+				and users.age like #{userPassword}
+			</if>
+			<if test="users.userAuthority!=null and users.userAuthority!='' ">
+				and users.userAuthority like #{userAuthority}
+			</if>
+		</if>
+	</sql>
+
+	<insert id="addUsers">
+		insert into users.* values(#{userId},#{opId},#{userAccount},#{userPassword},#{userAuthority})
+	</insert>
+	<delete id="deleteUsers">
+		delete from users where user_id = #{userId}
+	</delete>
+	<update id="updateUsers">
+		update users 
+		<set>
+			<include refid="Users_set"></include>
+		</set>
+		where user_id=#{userId}
+	</update>
+	<select id="findByAccount" resultType="com.hjk532.spring.module.UsersVo" useCache="true">
+		select * from users where user_account=#{userAccount}
+	</select>
+	<select id="findByName" resultType="com.hjk532.spring.module.UsersVo" useCache="true">
+		select * from users where op_id=#{opId}
+	</select>
+	<select id="findUsers" resultType="com.hjk532.spring.module.UsersVo" useCache="true">
+		select * from users limit #{param1},#{param2}
+	</select>
+</mapper>
