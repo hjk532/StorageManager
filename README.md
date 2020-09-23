@@ -1,4 +1,4 @@
-#松鼠仓库管理系统
+松鼠仓库管理系统
 ###使用技术： <br>
 ####组件框架：Spring、SpringMVC、MyBatis、Redis<br>
 ####数据管理：MySQL数据库<br>
